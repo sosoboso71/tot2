@@ -711,17 +711,18 @@ function updateTopProfiles(profileUrl) {
     topProfiles = topProfiles.filter(p => p !== profileUrl);
     topProfiles.unshift(profileUrl);
 
-    // păstrăm doar top 5
-    topProfiles = topProfiles.slice(0, 10); 
+    // păstrăm doar top 10
+    topProfiles = topProfiles.slice(0, 10);
 
     renderTop5();
 }
 
-// RENDER TOP 5
+// RENDER TOP 5 + SCROLL INFINIT + RANDOM ROTATION
 function renderTop5() {
     const list = document.getElementById("top5-list");
     list.innerHTML = "";
 
+    // 🔥 1) LISTA PRINCIPALĂ
     topProfiles.forEach((url, index) => {
         const pos = index + 1;
 
@@ -738,7 +739,6 @@ function renderTop5() {
         ring.appendChild(img);
         item.appendChild(ring);
 
-        // TOP 3 — glow + pop
         if (pos === 1) ring.classList.add("glow-gold");
         if (pos === 2) ring.classList.add("glow-silver");
         if (pos === 3) ring.classList.add("glow-bronze");
@@ -751,44 +751,46 @@ function renderTop5() {
         list.appendChild(item);
     });
 
+    // 🔥 2) DUPLICARE PENTRU SCROLL INFINIT
+    topProfiles.forEach((url, index) => {
+        const pos = index + 1;
+
+        const item = document.createElement("div");
+        item.className = "top5-item";
+
+        const ring = document.createElement("div");
+        ring.className = "top5-ring";
+
+        const img = document.createElement("img");
+        img.src = url;
+        img.className = "top5-pic";
+
+        ring.appendChild(img);
+        item.appendChild(ring);
+
+        if (pos === 1) ring.classList.add("glow-gold");
+        if (pos === 2) ring.classList.add("glow-silver");
+        if (pos === 3) ring.classList.add("glow-bronze");
+
+        list.appendChild(item);
+    });
+
+    // 🔥 3) RANDOM ROTATION pentru TOATE cercurile create
+    document.querySelectorAll('.top5-ring').forEach(ring => {
+        const direction = Math.random() < 0.5 ? 1 : -1;
+        const speed = 3 + Math.random() * 7;
+        const delay = Math.random() * 2;
+
+        ring.style.animation = `spinRing ${speed}s linear infinite`;
+        ring.style.animationDelay = `${delay}s`;
+
+        if (direction === -1) {
+            ring.style.animationDirection = "reverse";
+        }
+    });
+
     lastTop3 = topProfiles.slice(0, 3);
-}
-// duplicăm lista pentru scroll infinit
-topProfiles.forEach((url, index) => {
-    const pos = index + 1;
-
-    const item = document.createElement("div");
-    item.className = "top5-item";
-
-    const ring = document.createElement("div");
-    ring.className = "top5-ring";
-
-    const img = document.createElement("img");
-    img.src = url;
-    img.className = "top5-pic";
-
-    ring.appendChild(img);
-    item.appendChild(ring);
-
-    if (pos === 1) ring.classList.add("glow-gold");
-    if (pos === 2) ring.classList.add("glow-silver");
-    if (pos === 3) ring.classList.add("glow-bronze");
-
-    list.appendChild(item);
-});
-// RANDOM ROTATION pentru toate .top5-ring
-document.querySelectorAll('.top5-ring').forEach(ring => {
-    const direction = Math.random() < 0.5 ? 1 : -1;
-    const speed = 3 + Math.random() * 7;   // între 3 și 10 secunde
-    const delay = Math.random() * 2;       // între 0 și 2 secunde
-
-    ring.style.animation = `spinRing ${speed}s linear infinite`;
-    ring.style.animationDelay = `${delay}s`;
-
-    if (direction === -1) {
-        ring.style.animationDirection = "reverse";
-    }
-});
+} 
 /* -----------------------------
    INTEGRARE CORECTĂ CU WEBSOCKET
 ----------------------------- */
@@ -830,4 +832,4 @@ ws.onmessage = (event) => {
  
 </script>
 </body>
-</html>
+</html> 
